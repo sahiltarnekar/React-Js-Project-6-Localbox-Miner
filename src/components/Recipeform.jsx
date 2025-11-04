@@ -31,13 +31,13 @@ const Recipeform = () => {
     e.preventDefault();
 
     if (editIndex !== null) {
-      // Editing existing recipe
+      // Edit existing recipe
       const updated = [...recipes];
       updated[editIndex] = formData;
       setRecipes(updated);
       setEditIndex(null);
     } else {
-      // Adding new recipe
+      // Add new recipe
       setRecipes([...recipes, formData]);
     }
 
@@ -74,7 +74,14 @@ const Recipeform = () => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  // Filter recipes based on search term
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem("recipes");
+    alert("You have been logged out!");
+    window.location.href = "/login";
+  };
+
+  // Filter recipes
   const filteredRecipes = recipes.filter(
     (r) =>
       r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,20 +90,29 @@ const Recipeform = () => {
 
   return (
     <div className="container py-5">
+
       {/* Header */}
-      <div className="text-center mb-5">
-        <h1 className="display-4 text-white fw-bold mb-3">Recipe Collection</h1>
-        <p className="lead text-white">Add, search, sort, edit and delete your recipes</p>
+      <div className="d-flex justify-content-between align-items-center mb-5">
+        <div>
+          <h1 className="display-5 text-white fw-bold">Recipe Collection</h1>
+          <p className="lead text-white">Add, search, sort, edit and delete your recipes</p>
+        </div>
+        <button
+          className="btn btn-danger px-4 fw-semibold"
+          onClick={handleLogout}
+          style={{ borderRadius: "25px" }}
+        >
+          Logout
+        </button>
       </div>
 
-   
-
       {/* Recipe Form */}
-      <div className="recipe-card card shadow-lg border-0 mb-5" style={{ borderRadius: "15px" }}>
+      <div className="recipe-card card shadow-lg border-0 mb-4" style={{ borderRadius: "15px" }}>
         <div className="card-body p-4">
           <h3 className="card-title text-white mb-4 text-center">
             {editIndex !== null ? "Edit Recipe" : "Add New Recipe"}
           </h3>
+
           <form onSubmit={handleSubmit}>
             <div className="row g-3 mb-4">
               <div className="col-md-6">
@@ -111,16 +127,24 @@ const Recipeform = () => {
                   required
                 />
               </div>
+
               <div className="col-md-6">
                 <label className="form-label text-white fw-semibold">Category</label>
-                <input
-                  type="text"
+                <select
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  placeholder="e.g., Dinner, Breakfast"
-                  className="auth-input form-control form-control-lg"
-                />
+                  className="auth-input form-select text-dark form-select-lg"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                  <option value="Snacks">Snacks</option>
+                  <option value="Dessert">Dessert</option>
+                  <option value="Beverage">Beverage</option>
+                </select>
               </div>
             </div>
 
@@ -149,7 +173,7 @@ const Recipeform = () => {
               />
             </div>
 
-            <div className="text-center">
+            <div className="text-center mb-4">
               <button
                 className="btn btn-primary btn-lg px-5 py-3 fw-semibold"
                 type="submit"
@@ -158,28 +182,30 @@ const Recipeform = () => {
                 {editIndex !== null ? "Update Recipe" : "Add Recipe"}
               </button>
             </div>
+
+            {/* Search & Sort Controls (Moved Below Form) */}
+            <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap">
+              <input
+                type="text"
+                className="form-control auth-input"
+                placeholder="Search by name or category..."
+                value={searchTerm}
+                onChange={handleSearch}
+                style={{ maxWidth: "300px" }}
+              />
+              <button
+                className="btn btn-outline-light fw-semibold"
+                onClick={handleSort}
+                type="button"
+                style={{ borderRadius: "20px" }}
+              >
+                Sort {sortOrder === "asc" ? "A → Z" : "Z → A"}
+              </button>
+            </div>
           </form>
-     
         </div>
       </div>
-        {/* Search & Sort Controls */}
-      <div className="d-flex justify-content-center align-items-center gap-3 mb-4 mt-4 flex-wrap">
-        <input
-          type="text"
-          className="form-control auth-input"
-          placeholder="🔍 Search by name or category..."
-          value={searchTerm}
-          onChange={handleSearch}
-          style={{ maxWidth: "300px" }}
-        />
-        <button
-          className="btn btn-outline-light fw-semibold "
-          onClick={handleSort}
-          style={{ borderRadius: "20px" }}
-        >
-          Sort {sortOrder === "asc" ? "A → Z" : "Z → A"}
-        </button>
-      </div>
+
       {/* Recipe Cards */}
       <div className="row">
         {filteredRecipes.length > 0 ? (
@@ -229,21 +255,21 @@ const Recipeform = () => {
                     {recipe.description}
                   </p>
 
-                  {/* Edit & Delete Buttons */}
+                  {/* Edit & Delete Buttons (Icons Removed) */}
                   <div className="mt-auto d-flex justify-content-between">
                     <button
                       className="btn btn-sm btn-outline-light fw-semibold"
                       onClick={() => handleEdit(index)}
                       style={{ borderRadius: "20px" }}
                     >
-                      ✏️ Edit
+                      Edit
                     </button>
                     <button
                       className="btn btn-sm btn-outline-danger fw-semibold"
                       onClick={() => handleDelete(index)}
                       style={{ borderRadius: "20px" }}
                     >
-                      🗑️ Delete
+                      Delete
                     </button>
                   </div>
                 </div>
