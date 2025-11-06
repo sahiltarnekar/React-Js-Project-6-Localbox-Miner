@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Recipeform = () => {
   const [recipes, setRecipes] = useState([]);
@@ -9,8 +10,8 @@ const Recipeform = () => {
     imageUrl: ""
   });
   const [editIndex, setEditIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
+  
+  const navigate = useNavigate();
 
   // Load from localStorage
   useEffect(() => {
@@ -50,8 +51,10 @@ const Recipeform = () => {
   };
 
   const handleDelete = (index) => {
-    const updated = recipes.filter((_, i) => i !== index);
-    setRecipes(updated);
+    if (confirm("Do you want to delete this recipe?")) {
+      const updated = recipes.filter((_, i) => i !== index);
+      setRecipes(updated);
+    }
   };
 
   const handleEdit = (index) => {
@@ -59,34 +62,15 @@ const Recipeform = () => {
     setEditIndex(index);
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSort = () => {
-    const sorted = [...recipes].sort((a, b) => {
-      const nameA = a.name.toLowerCase();
-      const nameB = b.name.toLowerCase();
-      if (sortOrder === "asc") return nameA > nameB ? 1 : -1;
-      else return nameA < nameB ? 1 : -1;
-    });
-    setRecipes(sorted);
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-  };
 
   // Logout function
   const handleLogout = () => {
-    localStorage.removeItem("recipes");
+    localStorage.removeItem("loggedInUser");
     alert("You have been logged out!");
-    window.location.href = "/login";
+    navigate("/login");
   };
 
-  // Filter recipes
-  const filteredRecipes = recipes.filter(
-    (r) =>
-      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
 
   return (
     <div className="container py-5">
@@ -95,7 +79,7 @@ const Recipeform = () => {
       <div className="d-flex justify-content-between align-items-center mb-5">
         <div>
           <h1 className="display-5 text-white fw-bold">Recipe Collection</h1>
-          <p className="lead text-white">Add, search, sort, edit and delete your recipes</p>
+          <p className="lead text-white">Add, edit and delete your recipes</p>
         </div>
         <button
           className="btn btn-danger px-4 fw-semibold"
@@ -183,33 +167,15 @@ const Recipeform = () => {
               </button>
             </div>
 
-            {/* Search & Sort Controls (Moved Below Form) */}
-            <div className="d-flex justify-content-center align-items-center gap-3 flex-wrap">
-              <input
-                type="text"
-                className="form-control auth-input"
-                placeholder="Search by name or category..."
-                value={searchTerm}
-                onChange={handleSearch}
-                style={{ maxWidth: "300px" }}
-              />
-              <button
-                className="btn btn-outline-light fw-semibold"
-                onClick={handleSort}
-                type="button"
-                style={{ borderRadius: "20px" }}
-              >
-                Sort {sortOrder === "asc" ? "A → Z" : "Z → A"}
-              </button>
-            </div>
+            
           </form>
         </div>
       </div>
 
       {/* Recipe Cards */}
       <div className="row">
-        {filteredRecipes.length > 0 ? (
-          filteredRecipes.map((recipe, index) => (
+        {recipes.length > 0 ? (
+          recipes.map((recipe, index) => (
             <div key={index} className="col-md-6 col-lg-4 mb-4">
               <div
                 className="card h-100 shadow-sm recipe-card bg-transparent text-white"
@@ -256,7 +222,7 @@ const Recipeform = () => {
                   </p>
 
                   {/* Edit & Delete Buttons (Icons Removed) */}
-                  <div className="mt-auto d-flex justify-content-between">
+                  <div className="mt-auto d-flex justify-content-start gap-2">
                     <button
                       className="btn btn-sm btn-outline-light fw-semibold"
                       onClick={() => handleEdit(index)}
@@ -280,7 +246,7 @@ const Recipeform = () => {
           <div className="col-12">
             <div className="text-center py-5">
               <h4 className="text-white mb-2">No recipes found</h4>
-              <p className="text-white-50">Try adding or searching for one!</p>
+              <p className="text-white-50">Try adding one!</p>
             </div>
           </div>
         )}

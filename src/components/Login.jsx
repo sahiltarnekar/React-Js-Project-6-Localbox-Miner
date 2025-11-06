@@ -1,24 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const navigate = useNavigate();
-    const [input, setInput] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
 
-    const handleLogin = (e) => {
-        e.preventDefault();
+    const onSubmit = (data) => {
         const users = JSON.parse(localStorage.getItem("users")) || [];
         const match = users.find(
-            (u) => u.email === input.email && u.password === input.password
+            (u) => u.email === data.email && u.password === data.password
         );
-
         if (match) {
             localStorage.setItem("loggedInUser", JSON.stringify(match));
             alert("Welcome back, " + match.name + "!");
             navigate("/Recipeform");
         } else {
-            setError("Invalid credentials!");
+            alert("Invalid credentials!");
         }
     };
 
@@ -26,29 +24,23 @@ const Login = () => {
         <div className="auth-container">
             <div className="auth-card">
                 <h3 className="text-center mb-4 text-white">Login to Your Library</h3>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="form-group mb-3">
                         <input
-                            name="email"
-                            type="email"
-                            value={input.email}
-                            onChange={(e) => setInput({ ...input, [e.target.name]: e.target.value })}
                             className="form-control auth-input"
                             placeholder="Email"
-                            required
+                            {...register("email", { required: true })}
                         />
+                        {errors.email && <small className="text-danger">Email required</small>}
                     </div>
                     <div className="form-group mb-4">
                         <input
-                            name="password"
                             type="password"
-                            value={input.password}
-                            onChange={(e) => setInput({ ...input, [e.target.name]: e.target.value })}
                             className="form-control auth-input"
                             placeholder="Password"
-                            required
+                            {...register("password", { required: true })}
                         />
+                        {errors.password && <small className="text-danger">Password required</small>}
                     </div>
                     <button type="submit" className="btn btn-primary w-100">Login</button>
                 </form>
